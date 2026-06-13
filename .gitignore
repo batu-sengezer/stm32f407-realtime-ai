@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+model_fp32.h5
+UCI HAR Dataset/
+*.log
+f407_ai_rt/Debug/
+f407_ai_rt/**/*.o
+f407_ai_rt/**/*.d
+f407_ai_rt/**/*.su
