@@ -9,3 +9,4 @@ f407_ai_rt/Debug/
 f407_ai_rt/**/*.o
 f407_ai_rt/**/*.d
 f407_ai_rt/**/*.su
+.idea/
