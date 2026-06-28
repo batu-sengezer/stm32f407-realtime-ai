@@ -60,7 +60,9 @@ for i in range(len(X_test)):
         correct += 1
 
 int8_acc = correct / len(X_test)
-print(f"\nFP32 accuracy: 0.9467")
+# Evaluate FP32 model on test set
+fp32_loss, fp32_acc = model.evaluate(X_test, y_test, verbose=0)
+print(f"FP32 accuracy: {fp32_acc:.4f}")
 print(f"INT8 accuracy: {int8_acc:.4f}")
-print(f"Accuracy drop: {(0.9467 - int8_acc):.4f}")
+print(f"Accuracy drop: {(fp32_acc - int8_acc):.4f}")
 print("\nSaved model_int8.tflite")

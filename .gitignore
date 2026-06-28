@@ -10,3 +10,5 @@ f407_ai_rt/**/*.o
 f407_ai_rt/**/*.d
 f407_ai_rt/**/*.su
 .idea/
+~$*.docx
+f407_ai_rt/.settings/

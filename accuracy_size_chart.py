@@ -3,7 +3,7 @@ import numpy as np
 
 # --- Data ---
 labels = ['FP32 Model', 'INT8 Model']
-accuracy = [94.67, 94.67]
+accuracy = [95.15, 94.98]
 size_kb = [479.0, 42.5]
 
 x = np.arange(len(labels))
@@ -51,7 +51,7 @@ for bar in bars2:
 ax2.annotate('', xy=(x[1] + width/2, size_kb[1] + 60),
              xytext=(x[0] + width/2, size_kb[0] - 60),
              arrowprops=dict(arrowstyle='<->', color='#333333', lw=1.5))
-ax2.text(1.0, 260, '11.3× smaller\n0% accuracy loss',
+ax2.text(1.0, 260, '11.3× smaller\n0.17% accuracy loss',
          ha='center', fontsize=9, color='#333333',
          bbox=dict(boxstyle='round,pad=0.3', facecolor='#f5f5f5',
                    edgecolor='#cccccc'))

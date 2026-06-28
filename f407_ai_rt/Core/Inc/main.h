@@ -53,7 +53,16 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-
+extern volatile float result_mean_us;
+extern volatile float result_max_us;
+extern volatile float result_min_us;
+extern volatile float result_sigma_us;
+extern volatile uint8_t stats_ready;
+extern uint32_t cyc_min;
+extern uint32_t cyc_max;
+extern uint64_t cyc_sum;
+extern uint64_t cyc_sum_sq;
+extern uint32_t cyc_n;
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -124,8 +133,9 @@ void Error_Handler(void);
 #define MEMS_INT2_Pin GPIO_PIN_1
 #define MEMS_INT2_GPIO_Port GPIOE
 
-/* USER CODE BEGIN Private defines */
 
+/* USER CODE BEGIN Private defines */
+#define STAT_COUNT 1000
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

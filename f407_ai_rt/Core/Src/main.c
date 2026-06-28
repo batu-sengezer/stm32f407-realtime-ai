@@ -24,6 +24,7 @@
 #include "ai_datatypes_defines.h"
 #include "network.h"
 #include <math.h>
+#include "test_samples.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -54,11 +55,11 @@ SPI_HandleTypeDef hspi1;
 
 #define STAT_COUNT 1000
 
-static uint32_t cyc_min;
-static uint32_t cyc_max;
-static uint64_t cyc_sum;
-static uint64_t cyc_sum_sq;    // for σ — use 64-bit to avoid overflow
-static uint32_t cyc_n;
+uint32_t cyc_min;
+uint32_t cyc_max;
+uint64_t cyc_sum;
+uint64_t cyc_sum_sq;    // for σ — use 64-bit to avoid overflow
+uint32_t cyc_n;
 
 // Final results — watch these in the debugger
 volatile float result_mean_us;
@@ -521,11 +522,28 @@ void StartDefaultTask(void *argument)
 void StartSensorTask(void *argument)
 {
 	/* USER CODE BEGIN StartSensorTask */
+
+	static uint8_t sample_index = 0;
+
 	for(;;)
 	{
-	  /* Simulate sensor data ready every 100ms */
-	  osDelay(100);
+	  /* Copy next test sample into model input buffer */
+	  for(int i = 0; i < SAMPLE_SIZE; i++)
+	  {
+		  AI_FillInput(test_samples[sample_index], SAMPLE_SIZE);
+		  osSemaphoreRelease(dataReadySemHandle);
+		  sample_index = (sample_index + 1) % NUM_TEST_SAMPLES;
+		  osDelay(100);
+	  }
+
+	  /* Release semaphore to trigger inference */
 	  osSemaphoreRelease(dataReadySemHandle);
+
+	  /* Advance to next sample, wrap around */
+	  sample_index = (sample_index + 1) % NUM_TEST_SAMPLES;
+
+	  /* Wait 100ms before next sample */
+	  osDelay(100);
 	}
 	/* USER CODE END StartSensorTask */
 }
@@ -558,6 +576,15 @@ void StartLogTask(void *argument)
 				cyc_sum    += cycles;
 				cyc_sum_sq += (uint64_t)cycles * cycles;
 				cyc_n++;
+
+				/* Toggle green LED on each inference */
+				HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
+
+				/* Toggle orange LED every 100 inferences */
+				if(cyc_n % 100 == 0)
+				{
+				    HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
+				}
 
 				if (cyc_n == STAT_COUNT)
 				{

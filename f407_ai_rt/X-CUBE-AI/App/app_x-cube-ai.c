@@ -169,6 +169,15 @@ static int ai_run(void)
 }
 
 /* USER CODE BEGIN 2 */
+
+void AI_FillInput(const int8_t* src, int size)
+{
+    ai_i8* dst = (ai_i8*)ai_input[0].data;
+    for(int i = 0; i < size; i++)
+        dst[i] = src[i];
+}
+
+
 int acquire_and_process_data(ai_i8* data[])
 {
   /* fill the inputs of the c-model

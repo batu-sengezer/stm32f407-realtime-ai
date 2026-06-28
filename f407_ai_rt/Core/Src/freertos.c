@@ -21,6 +21,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "main.h"
+#include "test_samples.h"
+#include "app_x-cube-ai.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */

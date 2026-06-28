@@ -1,3 +1,5 @@
+import os
+import random
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
@@ -15,6 +17,11 @@ y_test = np.loadtxt(DATA_PATH + 'test/y_test.txt', dtype=int) - 1
 print(f"X_train shape: {X_train.shape}")
 print(f"X_test shape:  {X_test.shape}")
 print(f"Classes: {np.unique(y_train)}")
+
+random.seed(0)
+np.random.seed(0)
+tf.random.set_seed(0)
+os.environ['PYTHONHASHSEED'] = '0'
 
 # --- Build model ---
 model = keras.Sequential([
