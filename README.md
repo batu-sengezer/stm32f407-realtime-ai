@@ -305,19 +305,25 @@ cp test_samples.h path/to/f407_ai_rt/Core/Inc/
 
 ## Known Limitations and Planned Extensions
 
-**UART output not implemented.** Timing results are currently extracted via
-the CubeIDE debugger. A planned extension adds USART2 with retargeted printf,
-enabling streaming of per-inference cycle counts to the host for offline
-statistical analysis.
+**Timing safety relies on task periodicity, not explicit locking.** SensorTask's 
+100 ms period is designed to exceed inference WCET with substantial margin (786.89 µs, 
+0.79% utilization), which is what prevents SensorTask from preempting InferenceTask 
+mid-inference in practice. This is a timing argument rather than an enforced guarantee 
+because there are no critical sections or explicit locks around the DWT measurement window. 
+The system is correct only as long as inference WCET remains well below the 100 ms 
+period. A more robust implementation would use a mutex or disable interrupts around 
+the measurement window to make this guarantee explicit rather than implicit.
 
-**Image classifier not implemented.** The UCI HAR dataset (Option B) was
-selected for its memory efficiency. An image classifier (Option A, 32×32
-grayscale, Conv2D architecture) remains a planned extension.
+**Jetson Orin Nano deployment is planned as a future implementation.** The current results establish a 
+baseline on a microcontroller-class Cortex-M4F target. A planned extension deploys 
+the same model on a Jetson Orin Nano, an embedded GPU platform, to compare inference 
+latency, power characteristics, and resource footprint across radically different 
+hardware for the same task.
 
-**FPGA implementation not explored.** The current deployment targets a soft-core 
-ARM Cortex-M4 with a fixed instruction set. A natural extension is to implement 
-the INT8 inference pipeline on an FPGA fabric using HLS (High-Level Synthesis), 
-enabling custom datapath design for the 38,336 MACC operations — potentially 
-achieving lower latency and higher throughput through spatial parallelism. This 
-would also open hardware-software co-design exploration: partitioning the 
-inference pipeline between a soft-core processor and dedicated accelerator logic.
+**FPGA implementation determined as an interesting future direction.** The current deployment 
+targets a soft-core ARM Cortex-M4 with a fixed instruction set. A further extension is to implement the 
+INT8 inference pipeline on an FPGA fabric using HLS (High-Level Synthesis), enabling 
+custom datapath design for the 38,336 MACC operations which might potentially achieve lower 
+latency and higher throughput through spatial parallelism. This would also open 
+hardware-software co-design exploration of partitioning the inference pipeline between 
+a soft-core processor and dedicated accelerator logic.
