@@ -39,11 +39,12 @@ random seed. Inference is measured against real UCI HAR test samples covering al
 ## Dataset
 
 **UCI Human Activity Recognition (HAR) Dataset**
-- Source: UCI Machine Learning Repository
+- Source: UCI Machine Learning Repository on https://archive.ics.uci.edu/dataset/240/human+activity+recognition+using+smartphones
 - 30 subjects, smartphone accelerometer + gyroscope (waist-mounted)
 - 6 activity classes: Walking, Walking Upstairs, Walking Downstairs, Sitting, Standing, Laying
 - 561 pre-computed time and frequency domain features per sample
-- Train split: 7,352 samples — Test split: 2,947 samples
+- Train split: 7,352 samples 
+- Test split: 2,947 samples
 - Features are normalized to [-1, 1]
 
 ---
@@ -54,11 +55,11 @@ A fully-connected feed-forward network, deliberately small to fit within the
 MCU's memory constraints:
 
 ```
-Input:   (561,)          — 561 pre-computed HAR features
+Input:   (561,)          561 pre-computed HAR features
 Dense:   561 → 64        ReLU activation     35,968 parameters
 Dense:   64  → 32        ReLU activation      2,080 parameters
 Dense:   32  → 6         Softmax                198 parameters
-Output:  (6,)            — class probabilities
+Output:  (6,)            class probabilities
 ─────────────────────────────────────────────────────────────
 Total parameters:         38,246
 ```
@@ -86,7 +87,7 @@ with a representative dataset of 100 calibration samples.
 | Model file size | 479.0 KB | 42.5 KB |
 | Size reduction | — | 11.3× |
 
-0.17% accuracy degradation after quantization — negligible for embedded deployment.
+0.17% accuracy degradation after quantization negligible for embedded deployment.
 The representative dataset calibration correctly captured the activation ranges across all layers.
 
 ---
@@ -138,13 +139,13 @@ timing measurement.
 **SensorTask (AboveNormal priority)**
 Copies the next real UCI HAR test sample (INT8, 561 features) into the model
 input buffer via `AI_FillInput()`, then releases `dataReadySem`. Cycles through
-12 pre-quantized test samples — 2 per activity class — covering all 6 classes.
+12 pre-quantized test samples, 2 per activity class, covering all 6 classes.
 Waits 100 ms between samples via `osDelay(100)`.
 
 **InferenceTask (Normal priority)**
 Blocks on `dataReadySem`. On each release:
 1. Reads DWT cycle counter (start)
-2. Calls `MX_X_CUBE_AI_Process()` — one full inference pass on real input data
+2. Calls `MX_X_CUBE_AI_Process()`, one full inference pass on real input data
 3. Reads DWT cycle counter (stop)
 4. Computes elapsed cycles
 5. Posts cycle count to `logQueue`
@@ -196,7 +197,7 @@ DWT->CTRL   |= DWT_CTRL_CYCCNTENA_Msk;
 Cycle-to-microsecond conversion: `time_us = cycles / 168.0`
 
 Resolution: ~5.95 ns per cycle at 168 MHz. This provides sub-microsecond
-timing precision — significantly better than HAL_GetTick() which has 1 ms
+timing precision which is significantly better than HAL_GetTick() which has 1 ms
 resolution.
 
 ### Measurement Conditions
@@ -225,7 +226,7 @@ resolution.
 
 The 0.31 µs spread across 1,000 runs reflects genuine data-dependent variation
 in INT8 multiply-accumulate operations across different activity class inputs.
-Jitter of 2.24 µs represents less than 0.3% of mean latency — fully acceptable
+Jitter of 2.24 µs represents less than 0.3% of mean latency which is fully acceptable
 for real-time scheduling with a 100 ms task period (CPU utilisation: 0.79%).
 
 ---
@@ -305,8 +306,8 @@ cp test_samples.h path/to/f407_ai_rt/Core/Inc/
 
 ## Known Limitations and Planned Extensions
 
-**Timing safety relies on task periodicity, not explicit locking.** SensorTask's 
-100 ms period is designed to exceed inference WCET with substantial margin (786.89 µs, 
+**Timing safety relies on task periodicity, not explicit locking.** 
+SensorTask's 100 ms period is designed to exceed inference WCET with substantial margin (786.89 µs, 
 0.79% utilization), which is what prevents SensorTask from preempting InferenceTask 
 mid-inference in practice. This is a timing argument rather than an enforced guarantee 
 because there are no critical sections or explicit locks around the DWT measurement window. 
@@ -314,14 +315,14 @@ The system is correct only as long as inference WCET remains well below the 100 
 period. A more robust implementation would use a mutex or disable interrupts around 
 the measurement window to make this guarantee explicit rather than implicit.
 
-**Jetson Orin Nano deployment is planned as a future implementation.** The current results establish a 
-baseline on a microcontroller-class Cortex-M4F target. A planned extension deploys 
+**Jetson Orin Nano deployment is planned as a future implementation.** 
+The current results establish a baseline on a microcontroller-class Cortex-M4F target. A planned extension deploys 
 the same model on a Jetson Orin Nano, an embedded GPU platform, to compare inference 
 latency, power characteristics, and resource footprint across radically different 
 hardware for the same task.
 
-**FPGA implementation determined as an interesting future direction.** The current deployment 
-targets a soft-core ARM Cortex-M4 with a fixed instruction set. A further extension is to implement the 
+**FPGA implementation determined as an interesting future direction.** 
+The current deployment targets a soft-core ARM Cortex-M4 with a fixed instruction set. A further extension is to implement the 
 INT8 inference pipeline on an FPGA fabric using HLS (High-Level Synthesis), enabling 
 custom datapath design for the 38,336 MACC operations which might potentially achieve lower 
 latency and higher throughput through spatial parallelism. This would also open 
