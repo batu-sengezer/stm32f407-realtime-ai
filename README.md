@@ -217,12 +217,16 @@ resolution.
 |--------|-------|
 | Mean inference latency | 786.73 µs |
 | Min inference latency | 786.58 µs |
-| Max inference latency (WCET) | 786.89 µs |
+| Max observed latency* | 786.89 µs |
 | Jitter (σ) | 2.24 µs |
 | Total runs | 1,000 |
 | Input data | Real UCI HAR samples, all 6 activity classes |
 | Scheduler load | SensorTask + LogTask active |
 | Measurement method | DWT hardware cycle counter |
+
+\* This is the maximum value observed across 1,000 measured runs, not a formally
+proven Worst-Case Execution Time (WCET). See [Known Limitations](#known-limitations-and-planned-extensions)
+for the distinction.
 
 The 0.31 µs spread across 1,000 runs reflects genuine data-dependent variation
 in INT8 multiply-accumulate operations across different activity class inputs.
@@ -305,6 +309,18 @@ cp test_samples.h path/to/f407_ai_rt/Core/Inc/
 ---
 
 ## Known Limitations and Planned Extensions
+
+**The reported "worst-case" figure is measurement-based, not a formally proven WCET.**
+786.89 µs is the maximum value observed across 1,000 measured runs under FreeRTOS
+scheduling load which is an empirical characterization, not a mathematically proven
+Worst-Case Execution Time. It does not constitute exhaustive path coverage or a
+certification-grade timing guarantee: a rare interference or input scenario outside
+the 1,000 tested runs could in principle produce a higher value. A formally proven
+WCET would require static analysis or path-based timing analysis of the compiled
+binary (e.g. tools such as aiT, OTAWA, or Chronos), which is standard practice for
+safety-critical certification (e.g. DO-178C) but outside the scope of this project.
+Measurement-based characterization over a large number of runs is standard practice
+for prototype-stage timing analysis and is the approach used here.
 
 **Timing safety relies on task periodicity, not explicit locking.** 
 SensorTask's 100 ms period is designed to exceed inference WCET with substantial margin (786.89 µs, 
